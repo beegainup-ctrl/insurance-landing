@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 삶에 맞는 보장 찾기 | 삶을 위한 맞춤 컨설팅</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1a2e4a;
+    --navy-light: #2c4a6e;
+    --navy-dark: #0f1e30;
+    --accent: #2980b9;
+    --accent-light: #3498db;
+    --accent-pale: #ebf5fb;
+    --success: #1a7a4a;
+    --success-bg: #e8f5ee;
+    --warning: #c47a00;
+    --warning-bg: #fff8e6;
+    --danger: #c0392b;
+    --danger-bg: #fdf0ef;
+    --white: #ffffff;
+    --gray-100: #f5f7fa;
+    --gray-200: #e8ecf0;
+    --gray-300: #d0d6de;
+    --gray-500: #8a95a3;
+    --gray-700: #4a5568;
+    --gray-900: #1a202c;
+    --border-radius: 12px;
+    --shadow: 0 2px 12px rgba(26,46,74,0.10);
+    --shadow-lg: 0 8px 32px rgba(26,46,74,0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-900);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ── Progress Bar ── */
+  #progress-bar-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 10px 16px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  #progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 640px;
+    margin: 0 auto 6px;
+  }
+
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    position: relative;
+  }
+
+  .step-dot::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: calc(50% + 14px);
+    right: calc(-50% + 14px);
+    height: 2px;
+    background: var(--gray-300);
+    z-index: 0;
+  }
+
+  .step-dot:last-child::before { display: none; }
+
+  .step-circle {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    color: var(--gray-500);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 1;
+    transition: all 0.3s;
+    border: 2px solid var(--gray-300);
+  }
+
+  .step-dot.active .step-circle {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+  }
+
+  .step-dot.done .step-circle {
+    background: var(--success);
+    color: var(--white);
+    border-color: var(--success);
+  }
+
+  .step-dot.done::before { background: var(--success); }
+
+  .step-label {
+    font-size: 9px;
+    color: var(--gray-500);
+    white-space: nowrap;
+    letter-spacing: -0.2px;
+  }
+
+  .step-dot.active .step-label { color: var(--accent); font-weight: 700; }
+  .step-dot.done .step-label { color: var(--success); }
+
+  #progress-bar-track {
+    max-width: 640px;
+    margin: 0 auto;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  #progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--navy-light));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── Layout ── */
+  .page-wrap {
+    padding-top: 80px;
+    max-width: 680px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 40px;
+  }
+
+  .section {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 32px 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+    display: none;
+  }
+
+  .section.visible { display: block; }
+
+  /* ── Section Header ── */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-pale);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .section-tag svg { width: 14px; height: 14px; }
+
+  h1 {
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 800;
+    color: var(--navy-dark);
+    line-height: 1.35;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  h2 {
+    font-size: clamp(18px, 4vw, 22px);
+    font-weight: 700;
+    color: var(--navy-dark);
+    line-height: 1.4;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--gray-700);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* ── Section 1: Pain Points ── */
+  .pain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 480px) {
+    .pain-grid { grid-template-columns: 1fr; }
+  }
+
+  .pain-card {
+    border: 1.5px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 14px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    user-select: none;
+  }
+
+  .pain-card:hover { border-color: var(--accent); background: var(--accent-pale); }
+
+  .pain-card.checked {
+    border-color: var(--accent);
+    background: var(--accent-pale);
+  }
+
+  .pain-check {
+    width: 20px; height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-300);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    margin-top: 1px;
+  }
+
+  .pain-card.checked .pain-check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .pain-check svg { display: none; }
+  .pain-card.checked .pain-check svg { display: block; }
+
+  .pain-text {
+    font-size: 13px;
+    color: var(--gray-700);
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .pain-card.checked .pain-text { color: var(--accent); }
+
+  .cta-box {
+    background: var(--navy-dark);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    color: var(--white);
+  }
+
+  .cta-box p { font-size: 15px; margin-bottom: 4px; opacity: 0.85; }
+  .cta-box strong { font-size: 18px; display: block; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    letter-spacing: -0.2px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--white);
+    box-shadow: 0 4px 14px rgba(41,128,185,0.35);
+    margin-top: 24px;
+  }
+
+  .btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-navy {
+    background: var(--navy-dark);
+    color: var(--white);
+    margin-top: 24px;
+    box-shadow: 0 4px 14px rgba(15,30,48,0.30);
+  }
+
+  .btn-navy:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    margin-top: 12px;
+  }
+
+  .btn-outline:hover { background: var(--accent-pale); }
+
+  /* ── Section 2 / 5: Highlight Cards ── */
+  .strength-hero {
+    background: var(--navy-dark);
+    border-radius: 10px;
+    padding: 24px;
+    color: var(--white);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .strength-hero .big-text {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .strength-hero .sub-text {
+    font-size: 14px;
+    opacity: 0.75;
+    line-height: 1.6;
+  }
+
+  .strength-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 400px) {
+    .strength-cards { grid-template-columns: 1fr; }
+  }
+
+  .str-card {
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 16px;
+    background: var(--gray-100);
+  }
+
+  .str-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+
+  .str-card h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .str-card p { font-size: 12px; color: var(--gray-700); line-height: 1.5; }
+
+  /* ── Section 3: Form ── */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+
+  label .required {
+    color: var(--danger);
+    margin-left: 2px;
+  }
+
+  label .hint {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gray-500);
+    margin-left: 6px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--gray-900);
+    background: var(--white);
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    font-family: inherit;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(41,128,185,0.12);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a95a3' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 7px 14px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    color: var(--gray-700);
+    user-select: none;
+    font-family: inherit;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.selected { background: var(--accent); border-color: var(--accent); color: var(--white); font-weight: 600; }
+
+  .radio-group { display: flex; flex-direction: column; gap: 10px; }
+
+  .radio-card {
+    border: 1.5px solid var(--gray-300);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    user-select: none;
+  }
+
+  .radio-card:hover { border-color: var(--accent); background: var(--accent-pale); }
+  .radio-card.selected { border-color: var(--accent); background: var(--accent-pale); }
+
+  .radio-dot {
+    width: 18px; height: 18px;
+    min-width: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-300);
+    margin-top: 2px;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .radio-card.selected .radio-dot {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .radio-inner {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--white);
+    display: none;
+  }
+
+  .radio-card.selected .radio-inner { display: block; }
+
+  .radio-content h4 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .radio-content p { font-size: 12px; color: var(--gray-500); }
+
+  /* ── Section 4: Needs ── */
+  .coverage-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .coverage-opt {
+    padding: 18px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: var(--white);
+    font-family: inherit;
+    border-right: 1px solid var(--gray-300);
+  }
+
+  .coverage-opt:last-child { border-right: none; }
+
+  .coverage-opt.active {
+    background: var(--navy-dark);
+    color: var(--white);
+  }
+
+  .coverage-opt .opt-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .coverage-opt .opt-sub { font-size: 11px; opacity: 0.7; line-height: 1.4; }
+  .coverage-opt.active .opt-sub { opacity: 0.8; }
+
+  .slider-wrap { margin-bottom: 24px; }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .slider-val {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--gray-200);
+    outline: none;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--white);
+    box-shadow: 0 2px 6px rgba(41,128,185,0.4);
+  }
+
+  .slider-marks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .slider-marks span { font-size: 11px; color: var(--gray-500); }
+
+  /* ── Section 5: Final Message ── */
+  .final-cta {
+    background: var(--navy-dark);
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    color: var(--white);
+  }
+
+  .final-cta h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; color: var(--white); }
+  .final-cta p { font-size: 14px; opacity: 0.8; margin-bottom: 20px; line-height: 1.6; }
+
+  .btn-cta {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--white);
+    padding: 16px 40px;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    letter-spacing: -0.3px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(41,128,185,0.4);
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .btn-cta:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+  /* ── Name/Contact form ── */
+  .contact-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 400px) {
+    .contact-row { grid-template-columns: 1fr; }
+  }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--gray-200);
+    margin: 20px 0;
+  }
+
+  /* ── Nav buttons ── */
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .nav-buttons .btn { margin-top: 0; flex: 1; }
+  .nav-buttons .btn-back {
+    background: var(--white);
+    color: var(--gray-700);
+    border: 1.5px solid var(--gray-300);
+    flex: 0 0 auto;
+    width: 80px;
+    padding: 16px 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  .nav-buttons .btn-back:hover { background: var(--gray-100); }
+
+  /* ── Info box ── */
+  .info-box {
+    background: var(--accent-pale);
+    border: 1px solid #b8d8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #1a4a6e;
+    line-height: 1.5;
+    margin-top: -8px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Validation ── */
+  .field-error {
+    font-size: 12px;
+    color: var(--danger);
+    margin-top: 6px;
+    display: none;
+  }
+
+  .field-error.show { display: block; }
+
+  input.error, select.error, textarea.error {
+    border-color: var(--danger);
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar-wrap">
+  <div id="progress-steps">
+    <div class="step-dot active" data-step="1">
+      <div class="step-circle">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" class="check-icon" style="display:none"><polyline points="2,6 5,9 10,3"/></svg>
+        <span class="step-num">1</span>
+      </div>
+      <span class="step-label">고민 확인</span>
+    </div>
+    <div class="step-dot" data-step="2">
+      <div class="step-circle">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" class="check-icon" style="display:none"><polyline points="2,6 5,9 10,3"/></svg>
+        <span class="step-num">2</span>
+      </div>
+      <span class="step-label">서비스 강점</span>
+    </div>
+    <div class="step-dot" data-step="3">
+      <div class="step-circle">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" class="check-icon" style="display:none"><polyline points="2,6 5,9 10,3"/></svg>
+        <span class="step-num">3</span>
+      </div>
+      <span class="step-label">기본 정보</span>
+    </div>
+    <div class="step-dot" data-step="4">
+      <div class="step-circle">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" class="check-icon" style="display:none"><polyline points="2,6 5,9 10,3"/></svg>
+        <span class="step-num">4</span>
+      </div>
+      <span class="step-label">니즈 파악</span>
+    </div>
+    <div class="step-dot" data-step="5">
+      <div class="step-circle">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" class="check-icon" style="display:none"><polyline points="2,6 5,9 10,3"/></svg>
+        <span class="step-num">5</span>
+      </div>
+      <span class="step-label">보장 안내</span>
+    </div>
+  </div>
+  <div id="progress-bar-track">
+    <div id="progress-bar-fill"></div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- ════════════ SECTION 1: HOOK ════════════ -->
+  <section class="section visible" id="sec1">
+    <div class="section-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      삶을 위한 첫걸음
+    </div>
+    <h1>우리에게 필요한 보장,<br>삶을 안전하게 하는 방법</h1>
+    <p class="subtitle">막연했던 고민도 하나씩 짚어보면 답이 보입니다. 마음이 가는 항목을 선택해 보세요</p>
+
+    <div class="pain-grid" id="pain-grid">
+      <div class="pain-card" onclick="togglePain(this)">
+        <div class="pain-check">
+          <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+        <span class="pain-text">내가 무슨 보장이 필요한지 모르겠다</span>
+      </div>
+      <div class="pain-card" onclick="togglePain(this)">
+        <div class="pain-check">
+          <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+        <span class="pain-text">비용 대비 적정한 보장 금액을 모르겠다</span>
+      </div>
+      <div class="pain-card" onclick="togglePain(this)">
+        <div class="pain-check">
+          <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+        <span class="pain-text">나는 왜 보장을 준비하려고 하는가</span>
+      </div>
+      <div class="pain-card" onclick="togglePain(this)">
+        <div class="pain-check">
+          <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+        <span class="pain-text">어떤 경우에 보장을 받는지 알고 싶다</span>
+      </div>
+      <div class="pain-card" onclick="togglePain(this)">
+        <div class="pain-check">
+          <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+        <span class="pain-text">어떤 경우에는 보장을 못 받는지 알고 싶다</span>
+      </div>
+      <div class="pain-card" onclick="togglePain(this)">
+        <div class="pain-check">
+          <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+        <span class="pain-text">내가 어느 부분을 채워야 할지 모르겠다</span>
+      </div>
+    </div>
+
+    <div class="cta-box">
+      <p>이 중 하나라도 마음에 걸리신다면</p>
+      <strong>내 삶에 맞는 보장을 확인할 수 있어요</strong>
+      <p style="margin-top:6px; font-size:13px; opacity:0.7;">지금부터, 당신의 삶에 꼭 필요한 부분을 함께 찾아드릴게요</p>
+    </div>
+
+    <button class="btn btn-primary" onclick="goTo(2)">
+      내 삶에 맞는 보장 확인하기 →
+    </button>
+  </section>
+
+  <!-- ════════════ SECTION 2: STRENGTHS ════════════ -->
+  <section class="section" id="sec2">
+    <div class="section-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      서비스 강점
+    </div>
+    <h2>이런 점에서<br>든든합니다</h2>
+
+    <div class="strength-hero">
+      <div class="big-text">나에게 실제로 닥칠 가능성이 높은 부분부터<br>꼼꼼하게 채워드립니다</div>
+      <div class="sub-text">막연한 걱정 대신, 당신의 생활 패턴과 환경을 들여다보고<br>꼭 필요한 보장을 가장 먼저 보여드립니다</div>
+    </div>
+
+    <div class="strength-cards">
+      <div class="str-card">
+        <div class="str-icon" style="background:#ebf5fb;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2980b9" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>개인 맞춤 분석</h4>
+        <p>직업·생활습관을 종합 분석해 나만의 위험 프로파일 도출</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#e8f5ee;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h4>보장 투명 공개</h4>
+        <p>되는 것과 안 되는 것 모두 사전에 명확하게 안내</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#fdf0ef;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <h4>비용 최적화</h4>
+        <p>불필요한 보장은 줄이고 꼭 필요한 곳에 비용을 집중</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#fff8e6;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c47a00" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </div>
+        <h4>꾸준한 사후 관리</h4>
+        <p>삶의 변화에 맞춰 보장 구성을 주기적으로 점검하고 다듬어 드립니다</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#eef2f7;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a2e4a" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <h4>쉬운 언어로 안내</h4>
+        <p>어려운 용어 대신 일상적인 언어로 이해하기 쉽게 설명해 드립니다</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#ebf5fb;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2980b9" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        </div>
+        <h4>전문가 1:1 케어</h4>
+        <p>전문 상담사가 처음부터 끝까지 1:1로 함께합니다</p>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="goTo(1)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(3)">다음 단계 →</button>
+    </div>
+  </section>
+
+  <!-- ════════════ SECTION 3: CUSTOMER INFO ════════════ -->
+  <section class="section" id="sec3">
+    <div class="section-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      기본 정보 입력
+    </div>
+    <h2>고객 정보를 입력해 주세요</h2>
+    <p class="subtitle">입력하신 정보는 맞춤 보장 분석에만 활용됩니다</p>
+
+    <div class="contact-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>이름 <span class="required">*</span></label>
+        <input type="text" id="f-name" placeholder="홍길동">
+        <div class="field-error" id="err-name">이름을 입력해 주세요</div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>연락처 <span class="required">*</span></label>
+        <input type="tel" id="f-phone" placeholder="010-0000-0000">
+        <div class="field-error" id="err-phone">연락처를 입력해 주세요</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="form-group">
+      <label>생년월일 <span class="required">*</span></label>
+      <input type="date" id="f-birth">
+      <div class="field-error" id="err-birth">생년월일을 입력해 주세요</div>
+    </div>
+
+    <div class="form-group">
+      <label>성별 <span class="required">*</span></label>
+      <div class="chip-group" id="gender-group">
+        <button class="chip" onclick="selectChip(this, 'gender')">남성</button>
+        <button class="chip" onclick="selectChip(this, 'gender')">여성</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>직업 <span class="required">*</span></label>
+      <select id="f-job">
+        <option value="">직업을 선택해 주세요</option>
+        <option value="office">사무직 (실내 근무)</option>
+        <option value="service">서비스직 (매장·영업)</option>
+        <option value="driver">운전직 (택시·버스·배달)</option>
+        <option value="construction">건설·현장직</option>
+        <option value="medical">의료·보건직</option>
+        <option value="it">IT·개발직</option>
+        <option value="self">자영업·프리랜서</option>
+        <option value="housewife">주부</option>
+        <option value="student">학생</option>
+        <option value="retired">무직·은퇴</option>
+        <option value="other">기타</option>
+      </select>
+      <div class="field-error" id="err-job">직업을 선택해 주세요</div>
+    </div>
+
+    <div class="form-group">
+      <label>과거·현재 병력 <span class="hint">(해당하는 것 모두 선택)</span></label>
+      <div class="chip-group" id="disease-group">
+        <button class="chip" onclick="toggleChip(this)">고혈압</button>
+        <button class="chip" onclick="toggleChip(this)">당뇨</button>
+        <button class="chip" onclick="toggleChip(this)">심장 질환</button>
+        <button class="chip" onclick="toggleChip(this)">암 병력</button>
+        <button class="chip" onclick="toggleChip(this)">뇌·신경 질환</button>
+        <button class="chip" onclick="toggleChip(this)">관절·척추 질환</button>
+        <button class="chip" onclick="toggleChip(this)">호흡기 질환</button>
+        <button class="chip" onclick="toggleChip(this)">없음</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>가족력 <span class="hint">(직계 가족 중 해당하는 것 모두 선택)</span></label>
+      <div class="chip-group" id="family-group">
+        <button class="chip" onclick="toggleChip(this)">암</button>
+        <button class="chip" onclick="toggleChip(this)">심장 질환</button>
+        <button class="chip" onclick="toggleChip(this)">뇌혈관 질환</button>
+        <button class="chip" onclick="toggleChip(this)">당뇨</button>
+        <button class="chip" onclick="toggleChip(this)">고혈압</button>
+        <button class="chip" onclick="toggleChip(this)">없음</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>식습관</label>
+      <div class="radio-group">
+        <label class="radio-card" onclick="selectRadio(this, 'diet')">
+          <div class="radio-dot"><div class="radio-inner"></div></div>
+          <div class="radio-content">
+            <h4>주 1회 이하 — 인스턴트·패스트푸드</h4>
+            <p>대체로 건강한 식사를 유지합니다</p>
+          </div>
+        </label>
+        <label class="radio-card" onclick="selectRadio(this, 'diet')">
+          <div class="radio-dot"><div class="radio-inner"></div></div>
+          <div class="radio-content">
+            <h4>주 2~4회 — 인스턴트·패스트푸드</h4>
+            <p>가끔 외식이나 편의 음식을 섭취합니다</p>
+          </div>
+        </label>
+        <label class="radio-card" onclick="selectRadio(this, 'diet')">
+          <div class="radio-dot"><div class="radio-inner"></div></div>
+          <div class="radio-content">
+            <h4>주 5회 이상 — 인스턴트·패스트푸드</h4>
+            <p>대부분 편의 음식에 의존합니다</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>수면 패턴</label>
+      <div class="radio-group">
+        <label class="radio-card" onclick="selectRadio(this, 'sleep')">
+          <div class="radio-dot"><div class="radio-inner"></div></div>
+          <div class="radio-content">
+            <h4>규칙적 — 매일 7시간 이상</h4>
+            <p>수면의 질이 좋습니다</p>
+          </div>
+        </label>
+        <label class="radio-card" onclick="selectRadio(this, 'sleep')">
+          <div class="radio-dot"><div class="radio-inner"></div></div>
+          <div class="radio-content">
+            <h4>보통 — 5~7시간 (불규칙한 날 있음)</h4>
+            <p>수면이 약간 부족하거나 불규칙합니다</p>
+          </div>
+        </label>
+        <label class="radio-card" onclick="selectRadio(this, 'sleep')">
+          <div class="radio-dot"><div class="radio-inner"></div></div>
+          <div class="radio-content">
+            <h4>불규칙 — 5시간 미만 또는 야간 교대</h4>
+            <p>수면 부족 또는 야간 근무로 생체 리듬이 불규칙합니다</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>흡연 여부</label>
+      <div class="chip-group" id="smoking-group">
+        <button class="chip" onclick="selectChip(this, 'smoking')">비흡연</button>
+        <button class="chip" onclick="selectChip(this, 'smoking')">흡연 중</button>
+        <button class="chip" onclick="selectChip(this, 'smoking')">금연 (1년 이내)</button>
+        <button class="chip" onclick="selectChip(this, 'smoking')">금연 (1년 초과)</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>음주 여부</label>
+      <div class="chip-group" id="drink-group">
+        <button class="chip" onclick="selectChip(this, 'drink')">음주 안 함</button>
+        <button class="chip" onclick="selectChip(this, 'drink')">주 1~2회</button>
+        <button class="chip" onclick="selectChip(this, 'drink')">주 3회 이상</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>운전 여부</label>
+      <div class="chip-group" id="drive-group">
+        <button class="chip" onclick="selectChip(this, 'drive')">자가용</button>
+        <button class="chip" onclick="selectChip(this, 'drive')">영업용</button>
+        <button class="chip" onclick="selectChip(this, 'drive')">운전 안 함</button>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="goTo(2)">← 이전</button>
+      <button class="btn btn-primary" onclick="validateSec3()">다음 단계 →</button>
+    </div>
+  </section>
+
+  <!-- ════════════ SECTION 4: NEEDS ════════════ -->
+  <section class="section" id="sec4">
+    <div class="section-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      니즈 파악
+    </div>
+    <h2>보장에서 무엇을<br>원하시나요?</h2>
+    <p class="subtitle">두 가지 질문에 답해주시면 당신에게 맞는 보장을 정리해 드립니다</p>
+
+    <h3>동일한 보장 비용이라면 어떤 방식을 선호하시나요?</h3>
+    <div class="info-box">
+      같은 월 비용을 들이더라도 보장의 방향은 다를 수 있습니다. 아래 두 방식 중 나에게 맞는 것을 선택하세요.
+    </div>
+
+    <div class="coverage-toggle">
+      <button class="coverage-opt active" id="cov-wide" onclick="selectCoverage('wide')">
+        <div class="opt-title">🔲 넓고 얕게</div>
+        <div class="opt-sub">보장 범위 넓음<br>개별 보장금 낮음<br>(다양한 상황 대비)</div>
+      </button>
+      <button class="coverage-opt" id="cov-deep" onclick="selectCoverage('deep')">
+        <div class="opt-title">🎯 좁고 깊게</div>
+        <div class="opt-sub">핵심 위험 집중<br>개별 보장금 높음<br>(큰 사고 든든하게 보장)</div>
+      </button>
+    </div>
+
+    <div id="coverage-desc" class="info-box" style="margin-top:-8px; margin-bottom:20px;">
+      <strong>넓고 얕게</strong> — 암·심장·뇌 등 다양한 상황을 두루 살피되, 각 보장금은 적당한 수준으로 설정합니다. 다양한 상황에 대응하고 싶은 분께 적합합니다.
+    </div>
+
+    <hr class="divider">
+
+    <div class="slider-wrap">
+      <h3>희망 월 보험료</h3>
+      <div class="slider-label">
+        <span style="font-size:14px; color: #8a95a3;">희망 금액</span>
+        <span class="slider-val" id="slider-display">5만원</span>
+      </div>
+      <input type="range" id="premium-slider" min="3" max="30" value="5" step="1"
+        oninput="updateSlider(this.value)">
+      <div class="slider-marks">
+        <span>3만원</span>
+        <span>10만원</span>
+        <span>20만원</span>
+        <span>30만원</span>
+      </div>
+    </div>
+
+    <div id="premium-rec" class="info-box" style="margin-top:4px;">
+      월 5만원대 — 5만원 이하 구간으로, 기본적인 보장 구성에 적합합니다.
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="goTo(3)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(5)">다음 단계 →</button>
+    </div>
+  </section>
+
+  <!-- ════════════ SECTION 5: WHY COVERAGE MATTERS ════════════ -->
+  <section class="section" id="sec5">
+    <div class="section-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L4 5v6c0 5.5 3.8 9 8 11 4.2-2 8-5.5 8-11V5l-8-3z"/></svg>
+      보장 안내
+    </div>
+    <h2>당신의 삶을 지키는<br>이유 있는 준비</h2>
+    <p class="subtitle"><span id="final-name">고객</span>님, 지금까지 들려주신 이야기를 바탕으로 보장이 필요한 이유를 정리해봤습니다</p>
+
+    <div class="strength-hero">
+      <div class="big-text">일상이 멈추는 순간,<br>당신의 삶은 계속되어야 합니다</div>
+      <div class="sub-text">갑작스러운 순간에도 나와 내 가족이 경제적으로 무너지지 않도록,<br>지금의 작은 준비가 내일의 든든한 버팀목이 됩니다</div>
+    </div>
+
+    <div class="strength-cards">
+      <div class="str-card">
+        <div class="str-icon" style="background:#ebf5fb;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2980b9" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>가족을 향한 마음</h4>
+        <p>내가 잠시 멈추는 순간에도, 가족의 하루는 계속되어야 합니다</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#fdf0ef;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h4>예고 없는 순간</h4>
+        <p>예상하지 못한 사고와 어려움 앞에서도 흔들리지 않을 준비</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#fff8e6;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c47a00" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h4>회복의 시간</h4>
+        <p>몸과 마음이 회복되는 동안, 삶의 속도를 지켜드립니다</p>
+      </div>
+      <div class="str-card">
+        <div class="str-icon" style="background:#e8f5ee;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <h4>오늘의 선택</h4>
+        <p>작은 준비가 모여 내일을 더 단단하게 만들어 줍니다</p>
+      </div>
+    </div>
+
+    <div class="final-cta">
+      <h3>지금 바로 상담을 신청하세요</h3>
+      <p><span id="final-cta-name">고객</span>님의 이야기를 바탕으로<br>전문 상담사가 1:1로 함께해 드립니다</p>
+      <button class="btn-cta" id="consult-submit-btn" onclick="submitConsult(this)">
+        상담 신청하기
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Apps Script 배포 후 발급되는 웹 앱 URL로 교체하세요 (예: https://script.google.com/macros/s/AKfycby.../exec)
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyedsM-dgBRkQhMyemCKDkCABGTlTa7bgOxAe0pfxcqFYK-3FTpoml61FIaz0WfEnx21w/exec';
+
+var currentStep = 1;
+var formData = {
+  painChecked: [],
+  name: '', phone: '', birthDate: '', age: '', gender: '',
+  job: '', diseases: [], familyHistory: [], diet: '', sleep: '', smoking: '',
+  alcohol: '', driving: '',
+  coverageType: 'wide',
+  premium: 5
+};
+
+function goTo(step) {
+  document.getElementById('sec' + currentStep).classList.remove('visible');
+  currentStep = step;
+  document.getElementById('sec' + currentStep).classList.add('visible');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (step === 5) showFinalGreeting();
+}
+
+function updateProgress() {
+  var pct = ((currentStep - 1) / 4) * 100;
+  document.getElementById('progress-bar-fill').style.width = pct + '%';
+  var dots = document.querySelectorAll('.step-dot');
+  dots.forEach(function(dot, i) {
+    var s = i + 1;
+    dot.classList.remove('active', 'done');
+    if (s < currentStep) {
+      dot.classList.add('done');
+      dot.querySelector('.check-icon').style.display = 'block';
+      dot.querySelector('.step-num').style.display = 'none';
+    } else if (s === currentStep) {
+      dot.classList.add('active');
+      dot.querySelector('.check-icon').style.display = 'none';
+      dot.querySelector('.step-num').style.display = 'block';
+    } else {
+      dot.querySelector('.check-icon').style.display = 'none';
+      dot.querySelector('.step-num').style.display = 'block';
+    }
+  });
+}
+
+function togglePain(card) {
+  card.classList.toggle('checked');
+}
+
+function selectChip(el, group) {
+  document.querySelectorAll('#' + group + '-group .chip').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+}
+
+function toggleChip(el) {
+  var group = el.closest('.chip-group');
+  if (el.textContent.trim() === '없음') {
+    group.querySelectorAll('.chip').forEach(function(c) {
+      c.classList.remove('selected');
+    });
+    el.classList.add('selected');
+  } else {
+    var noneChip = Array.prototype.find.call(group.querySelectorAll('.chip'), function(c) {
+      return c.textContent.trim() === '없음';
+    });
+    if (noneChip) noneChip.classList.remove('selected');
+    el.classList.toggle('selected');
+  }
+}
+
+function selectRadio(el, group) {
+  document.querySelectorAll('[onclick="selectRadio(this, \'' + group + '\')"]').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+}
+
+function calcAge(birthStr) {
+  if (!birthStr) return '';
+  var today = new Date();
+  var birth = new Date(birthStr);
+  var age = today.getFullYear() - birth.getFullYear();
+  var m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+function validateSec3() {
+  var ok = true;
+  var name = document.getElementById('f-name').value.trim();
+  var phone = document.getElementById('f-phone').value.trim();
+  var birth = document.getElementById('f-birth').value;
+  var job = document.getElementById('f-job').value;
+
+  document.getElementById('err-name').classList.toggle('show', !name);
+  document.getElementById('f-name').classList.toggle('error', !name);
+  if (!name) ok = false;
+
+  document.getElementById('err-phone').classList.toggle('show', !phone);
+  document.getElementById('f-phone').classList.toggle('error', !phone);
+  if (!phone) ok = false;
+
+  document.getElementById('err-birth').classList.toggle('show', !birth);
+  document.getElementById('f-birth').classList.toggle('error', !birth);
+  if (!birth) ok = false;
+
+  document.getElementById('err-job').classList.toggle('show', !job);
+  document.getElementById('f-job').classList.toggle('error', !job);
+  if (!job) ok = false;
+
+  if (ok) goTo(4);
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectCoverage(type) {
+  formData.coverageType = type;
+  document.getElementById('cov-wide').classList.toggle('active', type === 'wide');
+  document.getElementById('cov-deep').classList.toggle('active', type === 'deep');
+  var desc = document.getElementById('coverage-desc');
+  if (type === 'wide') {
+    desc.innerHTML = '<strong>넓고 얕게</strong> — 암·심장·뇌 등 다양한 상황을 두루 살피되, 각 보장금은 적당한 수준으로 설정합니다. 다양한 상황에 대응하고 싶은 분께 적합합니다.';
+  } else {
+    desc.innerHTML = '<strong>좁고 깊게</strong> — 발생 가능성이 높은 핵심 위험에 집중하고 보장금을 높게 설정합니다. 큰 사고 시 확실한 보장을 원하는 분께 적합합니다.';
+  }
+}
+
+function updateSlider(val) {
+  formData.premium = parseInt(val);
+  document.getElementById('slider-display').textContent = val + '만원';
+  var rec = document.getElementById('premium-rec');
+  var v = parseInt(val);
+  if (v <= 5) rec.innerHTML = '월 ' + v + '만원대 — 5만원 이하 구간으로, 기본적인 보장 구성에 적합합니다.';
+  else if (v <= 10) rec.innerHTML = '월 ' + v + '만원대 — 5만원~10만원 구간으로, 핵심 보장을 안정적으로 갖출 수 있습니다.';
+  else if (v <= 20) rec.innerHTML = '월 ' + v + '만원대 — 10만원~20만원 구간으로, 보장 범위를 한층 넓힐 수 있습니다.';
+  else if (v < 30) rec.innerHTML = '월 ' + v + '만원대 — 20만원~30만원 구간으로, 더욱 든든한 구성이 가능합니다.';
+  else rec.innerHTML = '월 ' + v + '만원대 — 30만원 이상 구간으로, 가장 폭넓은 구성이 가능합니다.';
+}
+
+function collectFormData() {
+  formData.name = document.getElementById('f-name').value.trim();
+  formData.phone = document.getElementById('f-phone').value.trim();
+  formData.birthDate = document.getElementById('f-birth').value;
+  formData.age = calcAge(formData.birthDate);
+  formData.job = document.getElementById('f-job').value;
+
+  var genderEl = document.querySelector('#gender-group .chip.selected');
+  formData.gender = genderEl ? genderEl.textContent.trim() : '';
+
+  formData.diseases = [];
+  document.querySelectorAll('#disease-group .chip.selected').forEach(function(c) {
+    formData.diseases.push(c.textContent.trim());
+  });
+
+  formData.familyHistory = [];
+  document.querySelectorAll('#family-group .chip.selected').forEach(function(c) {
+    formData.familyHistory.push(c.textContent.trim());
+  });
+
+  var dietEl = document.querySelector('[onclick="selectRadio(this, \'diet\')"].selected .radio-content h4');
+  formData.diet = dietEl ? dietEl.textContent.trim() : '';
+
+  var sleepEl = document.querySelector('[onclick="selectRadio(this, \'sleep\')"].selected .radio-content h4');
+  formData.sleep = sleepEl ? sleepEl.textContent.trim() : '';
+
+  var smokingEl = document.querySelector('#smoking-group .chip.selected');
+  formData.smoking = smokingEl ? smokingEl.textContent.trim() : '';
+
+  var drinkEl = document.querySelector('#drink-group .chip.selected');
+  formData.alcohol = drinkEl ? drinkEl.textContent.trim() : '';
+
+  var driveEl = document.querySelector('#drive-group .chip.selected');
+  formData.driving = driveEl ? driveEl.textContent.trim() : '';
+}
+
+function showFinalGreeting() {
+  collectFormData();
+  var displayName = formData.name || '고객';
+  document.getElementById('final-name').textContent = displayName;
+  document.getElementById('final-cta-name').textContent = displayName;
+}
+
+function submitConsult(btn) {
+  collectFormData();
+
+  var painCards = document.querySelectorAll('#pain-grid .pain-card.checked .pain-text');
+  var pains = [];
+  painCards.forEach(function(p) { pains.push(p.textContent.trim()); });
+
+  var jobSelect = document.getElementById('f-job');
+  var jobText = jobSelect.selectedOptions.length ? jobSelect.selectedOptions[0].text : '';
+  var coverageLabel = formData.coverageType === 'deep' ? '좁고 깊게' : '넓고 얕게';
+
+  var payload = {
+    concerns: pains,
+    name: formData.name,
+    phone: formData.phone,
+    birthDate: formData.birthDate,
+    gender: formData.gender,
+    job: jobText,
+    diseases: formData.diseases,
+    familyHistory: formData.familyHistory,
+    diet: formData.diet,
+    sleep: formData.sleep,
+    smoking: formData.smoking,
+    alcohol: formData.alcohol,
+    driving: formData.driving,
+    coverageType: coverageLabel,
+    monthlyPremium: formData.premium + '만원'
+  };
+
+  if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
+    console.warn('SCRIPT_URL이 설정되지 않았습니다. Apps Script 배포 URL을 입력해 주세요.');
+    console.log(JSON.stringify(payload, null, 2));
+    alert('아직 저장소 연결이 설정되지 않았습니다.\n관리자에게 문의해 주세요.');
+    return;
+  }
+
+  var originalLabel = btn ? btn.textContent : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '전송 중...';
+  }
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data && data.result === 'success') {
+        alert(
+          '상담 신청이 완료되었습니다!\n\n' +
+          '이름: ' + payload.name + '\n' +
+          '연락처: ' + payload.phone + '\n\n' +
+          '담당 전문 상담사가 빠른 시간 내에 연락드리겠습니다.'
+        );
+      } else {
+        alert('신청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      }
+    })
+    .catch(function(err) {
+      console.error(err);
+      alert('신청 중 오류가 발생했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+    })
+    .finally(function() {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      }
+    });
+}
+
+updateProgress();
+</script>
+</body>
+</html>
