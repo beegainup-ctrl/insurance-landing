@@ -693,6 +693,64 @@
   }
 
   .warning-box.show { display: block; }
+
+  .consent-box {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .consent-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--gray-700);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .consent-row + .consent-row { margin-top: 10px; }
+  .consent-detail + .consent-row { margin-top: 12px; }
+  .field-error + .consent-row { margin-top: 10px; }
+
+  .consent-row input[type="checkbox"] {
+    width: 16px; height: 16px;
+    min-width: 16px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .consent-detail { margin: 6px 0 4px 24px; }
+
+  .consent-detail summary {
+    font-size: 12px;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .consent-detail summary::-webkit-details-marker { display: none; }
+
+  .consent-detail ul {
+    font-size: 11px;
+    color: var(--gray-500);
+    line-height: 1.6;
+    padding-left: 16px;
+    margin-top: 6px;
+  }
+
+  .hp-field {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
 </style>
 </head>
 <body>
@@ -924,29 +982,12 @@
     </div>
 
     <div class="form-group">
-      <label>과거·현재 병력 <span class="hint">(해당하는 것 모두 선택)</span></label>
-      <div class="chip-group" id="disease-group">
-        <button class="chip" onclick="toggleChip(this)">고혈압</button>
-        <button class="chip" onclick="toggleChip(this)">당뇨</button>
-        <button class="chip" onclick="toggleChip(this)">심장 질환</button>
-        <button class="chip" onclick="toggleChip(this)">암 병력</button>
-        <button class="chip" onclick="toggleChip(this)">뇌·신경 질환</button>
-        <button class="chip" onclick="toggleChip(this)">관절·척추 질환</button>
-        <button class="chip" onclick="toggleChip(this)">호흡기 질환</button>
-        <button class="chip" onclick="toggleChip(this)">없음</button>
+      <label>현재 치료 중이거나 3개월 내 진단받은 질환이 있으신가요?</label>
+      <div class="chip-group" id="healthFlag-group">
+        <button class="chip" onclick="selectChip(this, 'healthFlag')">예</button>
+        <button class="chip" onclick="selectChip(this, 'healthFlag')">아니오</button>
       </div>
-    </div>
-
-    <div class="form-group">
-      <label>가족력 <span class="hint">(직계 가족 중 해당하는 것 모두 선택)</span></label>
-      <div class="chip-group" id="family-group">
-        <button class="chip" onclick="toggleChip(this)">암</button>
-        <button class="chip" onclick="toggleChip(this)">심장 질환</button>
-        <button class="chip" onclick="toggleChip(this)">뇌혈관 질환</button>
-        <button class="chip" onclick="toggleChip(this)">당뇨</button>
-        <button class="chip" onclick="toggleChip(this)">고혈압</button>
-        <button class="chip" onclick="toggleChip(this)">없음</button>
-      </div>
+      <p style="font-size:12px; color: var(--gray-500); margin-top:8px;">구체적인 내용은 상담 시 확인드립니다.</p>
     </div>
 
     <div class="form-group">
@@ -1079,6 +1120,15 @@
 
     <hr class="divider">
 
+    <h3>현재 가입하신 보험이 있으신가요?</h3>
+    <div class="chip-group" id="existingInsurance-group">
+      <button class="chip" onclick="selectChip(this, 'existingInsurance')">없음</button>
+      <button class="chip" onclick="selectChip(this, 'existingInsurance')">실손보험만 있음</button>
+      <button class="chip" onclick="selectChip(this, 'existingInsurance')">여러 개 있음</button>
+    </div>
+
+    <hr class="divider">
+
     <div class="slider-wrap">
       <h3>희망 월 보험료</h3>
       <div class="slider-label">
@@ -1150,6 +1200,46 @@
       </div>
     </div>
 
+    <div class="consent-box">
+      <label class="consent-row">
+        <input type="checkbox" id="consent-privacy" onchange="clearConsentError()">
+        <span>[필수] 개인정보 수집·이용에 동의합니다</span>
+      </label>
+      <details class="consent-detail">
+        <summary>상세보기</summary>
+        <ul>
+          <li>수집 항목: 이름, 연락처, 생년월일, 성별, 직업, 기존 가입 보험 여부</li>
+          <li>수집·이용 목적: 보험 상담 및 안내</li>
+          <li>보유·이용 기간: 상담 종료 후 O개월</li>
+        </ul>
+      </details>
+
+      <label class="consent-row">
+        <input type="checkbox" id="consent-sensitive" onchange="clearConsentError()">
+        <span>[필수] 민감정보(건강정보) 수집·이용에 동의합니다</span>
+      </label>
+      <details class="consent-detail">
+        <summary>상세보기</summary>
+        <ul>
+          <li>수집 항목: 질환 여부, 식습관, 수면, 흡연, 음주, 운전 여부</li>
+          <li>수집·이용 목적: 보험 상담 및 가입 가능 여부 안내</li>
+          <li>보유·이용 기간: 상담 종료 후 O개월</li>
+        </ul>
+      </details>
+
+      <div class="field-error" id="err-consent">필수 동의 항목에 동의해주세요</div>
+
+      <label class="consent-row">
+        <input type="checkbox" id="consent-marketing">
+        <span>[선택] 상품 안내 등 마케팅 정보 수신에 동의합니다</span>
+      </label>
+    </div>
+
+    <div class="hp-field" aria-hidden="true">
+      <label for="website">Website</label>
+      <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
     <div class="final-cta">
       <h3>지금 바로 상담을 신청하세요</h3>
       <p><span id="final-cta-name">고객</span>님의 이야기를 바탕으로<br>전문 상담사가 1:1로 함께해 드립니다</p>
@@ -1169,10 +1259,11 @@ var currentStep = 1;
 var formData = {
   painChecked: [],
   name: '', phone: '', birthDate: '', age: '', gender: '',
-  job: '', diseases: [], familyHistory: [], diet: '', sleep: '', smoking: '',
+  job: '', healthFlag: '', diet: '', sleep: '', smoking: '',
   alcohol: '', driving: '',
   coreType: '',
   subNeeds: [],
+  existingInsurance: '',
   budget: 5
 };
 
@@ -1328,15 +1419,8 @@ function collectFormData() {
   var genderEl = document.querySelector('#gender-group .chip.selected');
   formData.gender = genderEl ? genderEl.textContent.trim() : '';
 
-  formData.diseases = [];
-  document.querySelectorAll('#disease-group .chip.selected').forEach(function(c) {
-    formData.diseases.push(c.textContent.trim());
-  });
-
-  formData.familyHistory = [];
-  document.querySelectorAll('#family-group .chip.selected').forEach(function(c) {
-    formData.familyHistory.push(c.textContent.trim());
-  });
+  var healthFlagEl = document.querySelector('#healthFlag-group .chip.selected');
+  formData.healthFlag = healthFlagEl ? healthFlagEl.textContent.trim() : '';
 
   var dietEl = document.querySelector('[onclick="selectRadio(this, \'diet\')"].selected .radio-content h4');
   formData.diet = dietEl ? dietEl.textContent.trim() : '';
@@ -1352,6 +1436,9 @@ function collectFormData() {
 
   var driveEl = document.querySelector('#drive-group .chip.selected');
   formData.driving = driveEl ? driveEl.textContent.trim() : '';
+
+  var insuranceEl = document.querySelector('#existingInsurance-group .chip.selected');
+  formData.existingInsurance = insuranceEl ? insuranceEl.textContent.trim() : '';
 }
 
 function showFinalGreeting() {
@@ -1361,7 +1448,22 @@ function showFinalGreeting() {
   document.getElementById('final-cta-name').textContent = displayName;
 }
 
+function clearConsentError() {
+  document.getElementById('err-consent').classList.remove('show');
+}
+
 function submitConsult(btn) {
+  var agreePrivacy = document.getElementById('consent-privacy').checked;
+  var agreeSensitive = document.getElementById('consent-sensitive').checked;
+  if (!agreePrivacy || !agreeSensitive) {
+    document.getElementById('err-consent').classList.add('show');
+    return;
+  }
+
+  if (document.getElementById('website').value) {
+    return;
+  }
+
   collectFormData();
 
   var painCards = document.querySelectorAll('#pain-grid .pain-card.checked .pain-text');
@@ -1378,16 +1480,20 @@ function submitConsult(btn) {
     birthDate: formData.birthDate,
     gender: formData.gender,
     job: jobText,
-    diseases: formData.diseases,
-    familyHistory: formData.familyHistory,
+    healthFlag: formData.healthFlag,
     diet: formData.diet,
     sleep: formData.sleep,
     smoking: formData.smoking,
     alcohol: formData.alcohol,
     driving: formData.driving,
     coverageType: formData.coreType,
-    subNeeds: formData.subNeeds.join(', '),
-    monthlyPremium: formData.budget + '만원'
+    subNeeds: formData.subNeeds,
+    existingInsurance: formData.existingInsurance,
+    monthlyPremium: formData.budget + '만원',
+    agreePrivacy: agreePrivacy,
+    agreeSensitive: agreeSensitive,
+    agreeMarketing: document.getElementById('consent-marketing').checked,
+    website: document.getElementById('website').value
   };
 
   if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
